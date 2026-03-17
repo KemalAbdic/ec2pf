@@ -244,6 +244,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final SsmSessionService svc = spy(newService(processOps, ec2pfConfig));
     doReturn(echoCommand(echoOutput))
@@ -304,6 +305,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final SsmSessionService svc = spy(newService(new ProcessService(), ec2pfConfig));
     doReturn(exitCodeCommand(1, "error message"))
@@ -324,6 +326,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final SsmSessionService svc = spy(newService(new ProcessService(), ec2pfConfig));
     doReturn(immediateExitCommand())
@@ -344,6 +347,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final SsmSessionService svc = spy(newService(new ProcessService(), ec2pfConfig));
 
@@ -473,6 +477,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final ProcessOperations mockProcess = mock(ProcessOperations.class);
     when(mockProcess.isPortInUse(anyInt())).thenReturn(false);
@@ -522,6 +527,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final SsmSessionService svc = spy(newService(new ProcessService(), ec2pfConfig));
     doReturn(exitCodeCommand(1, "An error occurred"))
@@ -542,6 +548,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final SsmSessionService svc = spy(newService(new ProcessService(), ec2pfConfig));
 
@@ -612,6 +619,7 @@ class SsmSessionServiceTest {
     when(ec2pfConfig.session()).thenReturn(sessionConfig);
     when(sessionConfig.startupAttempts()).thenReturn(2);
     when(sessionConfig.startupCheckIntervalMs()).thenReturn(50L);
+    when(sessionConfig.cliTimeoutSecs()).thenReturn(30);
 
     final SsmSessionService svc = spy(newService(new ProcessService(), ec2pfConfig));
     doReturn(longRunningCommand())
