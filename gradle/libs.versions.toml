@@ -1,0 +1,22 @@
+[versions]
+quarkus-plugin = "3.32.2"
+quarkus-platform = "3.32.2"
+checkstyle = "10.21.1"
+pmd = "7.22.0"
+testcontainers = "1.20.6"
+axion-release = "1.21.1"
+jspecify = "1.0.0"
+
+[libraries]
+quarkus-bom = { group = "io.quarkus.platform", name = "quarkus-bom", version.ref = "quarkus-platform" }
+quarkus-picocli = { group = "io.quarkus", name = "quarkus-picocli" }
+quarkus-arc = { group = "io.quarkus", name = "quarkus-arc" }
+quarkus-junit5 = { group = "io.quarkus", name = "quarkus-junit5" }
+quarkus-junit5-mockito = { group = "io.quarkus", name = "quarkus-junit5-mockito" }
+testcontainers-core = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers" }
+testcontainers-junit = { group = "org.testcontainers", name = "junit-jupiter", version.ref = "testcontainers" }
+jspecify = { group = "org.jspecify", name = "jspecify", version.ref = "jspecify" }
+
+[plugins]
+quarkus = { id = "io.quarkus", version.ref = "quarkus-plugin" }
+axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }

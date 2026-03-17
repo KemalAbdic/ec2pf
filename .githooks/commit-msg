@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+#
+# Conventional Commits commit-msg hook.
+# Ensures every commit message matches:
+#   type[(scope)][!]: description
+#
+# Allowed types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+# A BREAKING CHANGE footer is also permitted.
+#
+
+commit_msg_file="$1"
+commit_msg=$(head -1 "$commit_msg_file")
+
+# Allow merge commits and fixup/squash commits
+if echo "$commit_msg" | grep -qE "^Merge |^fixup! |^squash! |^amend! "; then
+  exit 0
+fi
+
+pattern="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?\!?: .+"
+
+if ! echo "$commit_msg" | grep -qE "$pattern"; then
+  echo ""
+  echo "ERROR: Commit message does not follow Conventional Commits format."
+  echo ""
+  echo "  Expected: <type>[(scope)][!]: <description>"
+  echo ""
+  echo "  Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+  echo ""
+  echo "  Examples:"
+  echo "    feat: add watch mode"
+  echo "    fix(parser): handle empty config"
+  echo "    feat!: redesign CLI interface"
+  echo "    docs: update README"
+  echo ""
+  echo "  Your message: $commit_msg"
+  echo ""
+  exit 1
+fi
