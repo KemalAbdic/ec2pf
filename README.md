@@ -1,5 +1,17 @@
 # ec2pf
 
+[![Build](https://github.com/KemalAbdic/ec2pf/actions/workflows/build.yml/badge.svg)](https://github.com/KemalAbdic/ec2pf/actions/workflows/build.yml)
+[![Coverage](https://img.shields.io/badge/Coverage-94%25-brightgreen.svg)](build/reports/jacoco/test/html/index.html)
+[![Release](https://img.shields.io/github/v/release/KemalAbdic/ec2pf)](https://github.com/KemalAbdic/ec2pf/releases/latest)
+
+[![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.org/projects/jdk/17/)
+[![Quarkus](https://img.shields.io/badge/Quarkus-3.32-4695EB.svg?logo=quarkus)](https://quarkus.io/)
+[![Gradle](https://img.shields.io/badge/Gradle-9.3-02303A.svg?logo=gradle)](https://gradle.org/)
+[![AWS](https://img.shields.io/badge/AWS-SSM-FF9900.svg?logo=amazonwebservices)](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html)
+[![JSpecify](https://img.shields.io/badge/JSpecify-1.0-6A9955.svg)](https://jspecify.dev/)
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 CLI tool for managing AWS SSM port-forwarding sessions to EC2 instances. Define your AWS settings and services in an INI
 config file, then start, stop, and monitor `aws ssm start-session` processes with automatic reconnection.
 
@@ -10,35 +22,45 @@ config file, then start, stop, and monitor `aws ssm start-session` processes wit
 - [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
 - AWS credentials configured (`aws configure` or environment variables)
 
-## Build
+## Installation
+
+### Download (recommended)
+
+Grab the uber-jar from the [latest release](https://github.com/KemalAbdic/ec2pf/releases/latest) - it's a single
+self-contained JAR with all dependencies bundled:
 
 ```bash
-./gradlew build
+java -jar ec2pf-<version>-runner.jar start -c config.ini
 ```
 
-The default build produces a fast-jar at `build/quarkus-app/quarkus-run.jar`. To run it you need the
-entire `build/quarkus-app/` directory (it contains `lib/`, `app/`, etc.):
-
-```bash
-java -jar build/quarkus-app/quarkus-run.jar start -c config.ini
-```
-
-### Uber-JAR (single file)
-
-To produce a single self-contained JAR with all dependencies bundled:
+### Build from source
 
 ```bash
 ./gradlew build -Dquarkus.package.jar.type=uber-jar
 java -jar build/ec2pf-<version>-runner.jar start -c config.ini
 ```
 
-### Native executable
+<details>
+<summary>Other build options</summary>
+
+#### Fast-jar (default)
+
+The default `./gradlew build` produces a fast-jar at `build/quarkus-app/quarkus-run.jar`. To run it you need the
+entire `build/quarkus-app/` directory (it contains `lib/`, `app/`, etc.):
+
+```bash
+java -jar build/quarkus-app/quarkus-run.jar start -c config.ini
+```
+
+#### Native executable
 
 Requires GraalVM or a container runtime:
 
 ```bash
 ./gradlew build -Dquarkus.native.enabled=true
 ```
+
+</details>
 
 ## Usage
 
