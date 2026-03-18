@@ -52,6 +52,18 @@ class ValidateCommandTest {
   }
 
   @Test
+  void callReturnsSoftwareWhenConfigFileIsNull() {
+    // given
+    command.configFile = null;
+
+    // when
+    final int exitCode = command.call();
+
+    // then
+    assertEquals(ExitCode.SOFTWARE, exitCode);
+  }
+
+  @Test
   void callReturnsSoftwareWhenConfigFileNotFound() {
     // given
     command.configFile = tempDir.resolve("nonexistent.ini");

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -43,6 +44,10 @@ public class StatusCommand implements Callable<Integer> {
 
   @Override
   public Integer call() {
+    if (Objects.isNull(target)) {
+      console.error("No target specified. Use -c/--config or --all.");
+      return ExitCode.SOFTWARE;
+    }
     final boolean hasError;
     if (target.all) {
       hasError = showAll();

@@ -70,7 +70,7 @@ public class StartCommand implements Callable<Integer> {
   public Integer call() {
     errorReporter.reset();
 
-    if (!Files.exists(configFile)) {
+    if (Objects.isNull(configFile) || !Files.exists(configFile)) {
       console.error(Messages.ERR_CONFIG_NOT_FOUND.formatted(configFile));
       return ExitCode.SOFTWARE;
     }

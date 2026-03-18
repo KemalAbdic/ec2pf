@@ -80,6 +80,18 @@ class StopCommandFunctionalTest {
   }
 
   @Test
+  void callReturnsSoftwareWhenTargetIsNull() {
+    // given
+    command.target = null;
+
+    // when
+    final int exitCode = command.call();
+
+    // then
+    assertEquals(ExitCode.SOFTWARE, exitCode);
+  }
+
+  @Test
   void stopAllWithNoPidFilesReturnsOk() {
     // given - no PID files in tempDir
     setStopAll();

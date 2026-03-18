@@ -93,6 +93,19 @@ class StatusCommandTest {
   }
 
   @Test
+  void callReturnsSoftwareWhenTargetIsNull() {
+    // given
+    command.target = null;
+
+    // when
+    final int exitCode = command.call();
+
+    // then
+    assertEquals(ExitCode.SOFTWARE, exitCode);
+    assertTrue(output().contains("No target specified"), "Should show null target error, got: " + output());
+  }
+
+  @Test
   void callReturnsOkWhenShowAllFindsNoFiles() {
     // given - no PID files in tempDir
     setShowAll();
