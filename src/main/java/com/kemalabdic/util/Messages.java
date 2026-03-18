@@ -14,7 +14,8 @@ public final class Messages {
   public static final String MSG_SESSION_COUNT = "%d session(s)";
   public static final String MSG_SERVICES_DEFINED = "%d defined";
 
-  private Messages() { // not instantiated
+  private Messages() {
+    // not instantiated
   }
 
   public static String sessionCount(int count) {

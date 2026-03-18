@@ -79,7 +79,7 @@ public class StatusCommand implements Callable<Integer> {
     List<Path> pidFiles;
     try {
       pidFiles = pidFileManager.findAllPidFiles();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       console.error(Messages.ERR_PID_FILES_FIND.formatted(e.getMessage()));
       return true;
     }
@@ -101,7 +101,7 @@ public class StatusCommand implements Callable<Integer> {
     String label;
     try {
       label = pidFileManager.getLabel(pidFile).orElse(pidFile.getFileName().toString());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       label = pidFile.getFileName().toString();
     }
 
@@ -110,7 +110,7 @@ public class StatusCommand implements Callable<Integer> {
     List<SessionInfo> entries;
     try {
       entries = pidFileManager.readEntries(pidFile);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       console.error(Messages.ERR_PID_FILE_READ.formatted(e.getMessage()));
       return true;
     }

@@ -144,7 +144,7 @@ public class SessionManager {
       service.remotePort(), instanceId, Instant.now().getEpochSecond());
     try {
       pidFileManager.appendEntry(pidFile, entry);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       if (outputMode == OutputMode.NORMAL) {
         console.warn(Messages.ERR_PID_FILE_WRITE + e.getMessage());
       }

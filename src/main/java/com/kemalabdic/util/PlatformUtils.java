@@ -9,7 +9,8 @@ public final class PlatformUtils {
 
   private static volatile Boolean windowsOverride;
 
-  private PlatformUtils() { // not instantiated
+  private PlatformUtils() {
+    // not instantiated
   }
 
   public static boolean isWindows() {

@@ -22,13 +22,15 @@ import picocli.CommandLine.IVersionProvider;
   versionProvider = PortForwardCommand.VersionProvider.class,
   description = "Manage AWS SSM port-forwarding sessions to EC2 instances.")
 public class PortForwardCommand {
-  private PortForwardCommand() { // not instantiated
+  private PortForwardCommand() {
+    // not instantiated
   }
 
 
   static class VersionProvider implements IVersionProvider {
 
-    private VersionProvider() { // not instantiated
+    private VersionProvider() {
+      // not instantiated
     }
 
     @Override
@@ -50,7 +52,8 @@ public class PortForwardCommand {
           props.load(is);
           return props.getProperty("app.version", "unknown");
         }
-      } catch (IOException ignored) { // fall back to "unknown"
+      } catch (final IOException ignored) {
+        // fall back to "unknown"
       }
       return "unknown";
     }
