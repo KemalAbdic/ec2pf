@@ -39,8 +39,16 @@ jobs:
             build/reports/checkstyle/
             build/reports/pmd/
 
-      - name: Tag release
+      - name: Check for code changes
+        id: changes
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          if git diff --name-only HEAD~1 | grep -qvE '\.md$'; then
+            echo "code_changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tag release
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.code_changed == 'true'
         run: ./gradlew release -Prelease.disableChecks
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
