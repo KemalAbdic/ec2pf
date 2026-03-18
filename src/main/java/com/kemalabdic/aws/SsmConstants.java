@@ -9,7 +9,8 @@ public final class SsmConstants {
   public static final String CMD_START_SESSION = "start-session";
   public static final String DOCUMENT_PORT_FORWARDING = "AWS-StartPortForwardingSession";
 
-  private SsmConstants() { // not instantiated
+  private SsmConstants() {
+    // not instantiated
   }
 
   public static String localPortParam(final int localPort) {

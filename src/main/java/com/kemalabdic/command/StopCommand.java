@@ -97,7 +97,7 @@ public class StopCommand implements Callable<Integer> {
     List<Path> pidFiles;
     try {
       pidFiles = pidFileManager.findAllPidFiles();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       console.error(Messages.ERR_PID_FILES_FIND.formatted(e.getMessage()));
       return new ResultCounts(0, 0, 1);
     }
@@ -119,7 +119,7 @@ public class StopCommand implements Callable<Integer> {
     String label;
     try {
       label = pidFileManager.getLabel(pidFile).orElse(pidFile.getFileName().toString());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       label = pidFile.getFileName().toString();
     }
 
@@ -128,7 +128,7 @@ public class StopCommand implements Callable<Integer> {
     List<SessionInfo> entries;
     try {
       entries = pidFileManager.readEntries(pidFile);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       console.error(Messages.ERR_PID_FILE_READ.formatted(e.getMessage()));
       return new ResultCounts(0, 0, 0);
     }
@@ -137,7 +137,8 @@ public class StopCommand implements Callable<Integer> {
       console.info("No session entries in %s".formatted(pidFile.getFileName()));
       try {
         pidFileManager.deletePidFile(pidFile);
-      } catch (IOException ignored) { // best-effort, missing file is fine
+      } catch (final IOException ignored) {
+        // best-effort, missing file is fine
       }
       return new ResultCounts(0, 0, 0);
     }
@@ -151,7 +152,7 @@ public class StopCommand implements Callable<Integer> {
     if (!dryRun) {
       try {
         pidFileManager.deletePidFile(pidFile);
-      } catch (IOException e) {
+      } catch (final IOException e) {
         console.warn(Messages.ERR_PID_FILE_REMOVE.formatted(e.getMessage()));
       }
     }

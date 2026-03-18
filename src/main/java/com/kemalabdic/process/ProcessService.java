@@ -41,7 +41,7 @@ public class ProcessService implements ProcessOperations {
     try (ServerSocket ss = new ServerSocket(port)) {
       ss.setReuseAddress(true);
       return false;
-    } catch (IOException e) {
+    } catch (final IOException e) {
       return true;
     }
   }
@@ -118,10 +118,10 @@ public class ProcessService implements ProcessOperations {
           LOG.debugf("Failed to kill PID %d: exit=%d", pid, exit);
         }
         return exit == 0;
-      } catch (IOException e) {
+      } catch (final IOException e) {
         LOG.debugf("IOException killing PID %d: %s", pid, e.getMessage());
         return false;
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         LOG.debugf("Interrupted killing PID %d", pid);
         Thread.currentThread().interrupt();
         return false;
@@ -168,9 +168,9 @@ public class ProcessService implements ProcessOperations {
         }
       }
       p.waitFor();
-    } catch (IOException | NumberFormatException e) {
+    } catch (final IOException | NumberFormatException e) {
       LOG.debugf("findPidOnPortWindows port %d: %s", port, e.getMessage());
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
     }
     return Optional.empty();
@@ -188,9 +188,9 @@ public class ProcessService implements ProcessOperations {
         }
       }
       p.waitFor();
-    } catch (IOException | NumberFormatException e) {
+    } catch (final IOException | NumberFormatException e) {
       LOG.debugf("findPidOnPortUnix port %d: %s", port, e.getMessage());
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
     }
     return Optional.empty();

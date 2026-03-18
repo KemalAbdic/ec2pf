@@ -109,7 +109,7 @@ public class StartCommand implements Callable<Integer> {
   private Optional<PortForwardConfig> parseConfig() {
     try {
       return Optional.of(configParser.parse(configFile));
-    } catch (ConfigParseException e) {
+    } catch (final ConfigParseException e) {
       console.error(Messages.ERR_CONFIG_PARSE.formatted(e.getMessage()));
       return Optional.empty();
     }
@@ -128,7 +128,7 @@ public class StartCommand implements Callable<Integer> {
     try {
       pidFileManager.ensureHeader(pidFile, config.configFilePath().toString(), config.configLabel());
       return true;
-    } catch (IOException e) {
+    } catch (final IOException e) {
       console.error(Messages.ERR_PID_FILE_CREATE.formatted(e.getMessage()));
       return false;
     }
@@ -198,7 +198,7 @@ public class StartCommand implements Callable<Integer> {
         }
       }
       pidFileManager.deletePidFile(pidFile);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       console.warn(Messages.ERR_PID_FILE_READ.formatted(e.getMessage()));
     }
   }

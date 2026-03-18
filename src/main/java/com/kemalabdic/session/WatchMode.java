@@ -14,11 +14,14 @@ import org.jboss.logging.Logger;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class WatchMode {
@@ -82,7 +85,8 @@ public class WatchMode {
     try {
       final List<SessionInfo> initial = pidFileManager.readEntries(pidFile);
       display.render(initial);
-    } catch (IOException ignored) { // best-effort, watch loop continues regardless
+    } catch (final IOException ignored) {
+      // best-effort, watch loop continues regardless
     }
 
     try {
@@ -94,14 +98,15 @@ public class WatchMode {
         }
         checkAndReconnect(config, pidFile, instanceCache);
       }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
+    } catch (final InterruptedException e) {
+      // not re-interrupting
     } finally {
       inWatchLoop.set(false);
       cleanupManagedSessions(pidFile);
       try {
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
-      } catch (IllegalStateException ignored) { // JVM already shutting down
+      } catch (final IllegalStateException ignored) {
+        // JVM already shutting down
       }
     }
   }
@@ -110,7 +115,7 @@ public class WatchMode {
     List<SessionInfo> entries;
     try {
       entries = pidFileManager.readEntries(pidFile);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       display.addEvent("Failed to read PID file: " + e.getMessage());
       return;
     }
@@ -229,15 +234,20 @@ public class WatchMode {
   private List<SessionInfo> rewritePidFile(final PortForwardConfig config, final Path pidFile) {
     try {
       final List<SessionInfo> allEntries = pidFileManager.readEntries(pidFile);
-      final List<SessionInfo> liveEntries = allEntries.stream()
+      final Map<String, SessionInfo> latest = new LinkedHashMap<>();
+      for (final SessionInfo e : allEntries) {
+        latest.put(e.service(), e);
+      }
+      final List<SessionInfo> deduplicated = new ArrayList<>(latest.values());
+      final List<SessionInfo> live = deduplicated.stream()
         .filter(e -> processService.isProcessAlive(e.pid()))
-        .toList();
-      pidFileManager.writeEntries(pidFile, config.configFilePath().toString(), config.configLabel(), liveEntries);
-      return liveEntries;
-    } catch (IOException e) {
+        .collect(Collectors.toCollection(ArrayList::new));
+      pidFileManager.writeEntries(pidFile, config.configFilePath().toString(), config.configLabel(), live);
+      return live;
+    } catch (final IOException e) {
       try {
         return pidFileManager.readEntries(pidFile);
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
         return List.of();
       }
     }
@@ -268,7 +278,7 @@ public class WatchMode {
         pidFileManager.writeEntries(pidFile, configPath, configLabel, survivors);
         console.warn(VERB_CLEANUP, "%d stopped, %d still running".formatted(stopped, survivors.size()));
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       console.error(VERB_CLEANUP, e.getMessage());
     }
   }
@@ -297,7 +307,7 @@ public class WatchMode {
       }
       try {
         Thread.sleep(portReleaseIntervalMs);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         Thread.currentThread().interrupt();
         return false;
       }
