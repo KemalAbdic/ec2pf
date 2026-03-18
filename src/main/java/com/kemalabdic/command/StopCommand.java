@@ -55,7 +55,7 @@ public class StopCommand implements Callable<Integer> {
     if (target.all) {
       totalCounts = stopAll();
     } else {
-      totalCounts = stopByConfig(target.configFile);
+      totalCounts = stopByConfig(Objects.requireNonNull(target.configFile));
     }
     return totalCounts.failed() > 0 ? ExitCode.SOFTWARE : ExitCode.OK;
   }
@@ -206,7 +206,7 @@ public class StopCommand implements Callable<Integer> {
 
   static class StopTarget {
     @Option(names = {"-c", "--config"}, description = "Path to INI config file.")
-    Path configFile;
+    @Nullable Path configFile;
 
     @Option(names = "--all", description = "Stop all active sessions.")
     boolean all;

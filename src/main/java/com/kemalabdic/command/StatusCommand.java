@@ -30,7 +30,7 @@ public class StatusCommand implements Callable<Integer> {
   private final PidFileManager pidFileManager;
   private final ProcessOperations processService;
   private final ConsoleOutput console;
-  @ArgGroup(exclusive = true, multiplicity = "1")
+  @ArgGroup(multiplicity = "1")
   @Nullable StatusTarget target;
 
   @Inject
@@ -52,7 +52,7 @@ public class StatusCommand implements Callable<Integer> {
     if (target.all) {
       hasError = showAll();
     } else {
-      hasError = showByConfig(target.configFile);
+      hasError = showByConfig(Objects.requireNonNull(target.configFile));
     }
     return hasError ? ExitCode.SOFTWARE : ExitCode.OK;
   }
@@ -144,7 +144,7 @@ public class StatusCommand implements Callable<Integer> {
 
   static class StatusTarget {
     @Option(names = {"-c", "--config"}, description = "Path to INI config file.")
-    Path configFile;
+    @Nullable Path configFile;
 
     @Option(names = "--all", description = "Show all active sessions.")
     boolean all;

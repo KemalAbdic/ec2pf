@@ -37,7 +37,6 @@ class StatusCommandTest {
 
   @TempDir
   Path tempDir;
-  private IniConfigParser configParser;
   private PidFileManager pidFileManager;
   private ProcessOperations processService;
   private StatusCommand command;
@@ -46,7 +45,7 @@ class StatusCommandTest {
 
   @BeforeEach
   void setUp() {
-    configParser = new IniConfigParser();
+    final IniConfigParser configParser = new IniConfigParser();
     pidFileManager = new PidFileManager(tempDir.toString());
     processService = mock(ProcessOperations.class);
     originalOut = System.out;

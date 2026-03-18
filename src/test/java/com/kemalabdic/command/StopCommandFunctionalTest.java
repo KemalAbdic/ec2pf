@@ -39,14 +39,13 @@ class StopCommandFunctionalTest {
 
   @TempDir
   Path tempDir;
-  private IniConfigParser configParser;
   private PidFileManager pidFileManager;
   private ProcessOperations processService;
   private StopCommand command;
 
   @BeforeEach
   void setUp() {
-    configParser = new IniConfigParser();
+    final IniConfigParser configParser = new IniConfigParser();
     pidFileManager = new PidFileManager(tempDir.toString());
     processService = mock(ProcessOperations.class);
     command = new StopCommand(configParser, pidFileManager, processService, new ConsoleOutput());
