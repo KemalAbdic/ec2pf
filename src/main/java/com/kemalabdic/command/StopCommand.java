@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -46,11 +47,15 @@ public class StopCommand implements Callable<Integer> {
 
   @Override
   public Integer call() {
+    if (Objects.isNull(target)) {
+      console.error("No target specified. Use -c/--config or --all.");
+      return ExitCode.SOFTWARE;
+    }
     final ResultCounts totalCounts;
     if (target.all) {
       totalCounts = stopAll();
     } else {
-      totalCounts = stopByConfig(target.configFile);
+      totalCounts = stopByConfig(Objects.requireNonNull(target.configFile));
     }
     return totalCounts.failed() > 0 ? ExitCode.SOFTWARE : ExitCode.OK;
   }
@@ -201,7 +206,7 @@ public class StopCommand implements Callable<Integer> {
 
   static class StopTarget {
     @Option(names = {"-c", "--config"}, description = "Path to INI config file.")
-    Path configFile;
+    @Nullable Path configFile;
 
     @Option(names = "--all", description = "Stop all active sessions.")
     boolean all;

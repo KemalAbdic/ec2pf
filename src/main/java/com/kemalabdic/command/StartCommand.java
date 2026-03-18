@@ -70,12 +70,12 @@ public class StartCommand implements Callable<Integer> {
   public Integer call() {
     errorReporter.reset();
 
-    if (!Files.exists(configFile)) {
+    if (Objects.isNull(configFile) || !Files.exists(configFile)) {
       console.error(Messages.ERR_CONFIG_NOT_FOUND.formatted(configFile));
       return ExitCode.SOFTWARE;
     }
 
-    final Optional<PortForwardConfig> configOpt = parseConfig();
+    final Optional<PortForwardConfig> configOpt = parseConfig(configFile);
     if (configOpt.isEmpty()) {
       return ExitCode.SOFTWARE;
     }
@@ -106,7 +106,7 @@ public class StartCommand implements Callable<Integer> {
     return ExitCode.OK;
   }
 
-  private Optional<PortForwardConfig> parseConfig() {
+  private Optional<PortForwardConfig> parseConfig(final Path configFile) {
     try {
       return Optional.of(configParser.parse(configFile));
     } catch (final ConfigParseException e) {
@@ -164,8 +164,8 @@ public class StartCommand implements Callable<Integer> {
     if (Objects.nonNull(watchGroup)) {
       if (watchGroup.noWatch) {
         watchEnabled = false;
-      } else if (Objects.nonNull(watchGroup.watchInterval)) {
-        watchInterval = watchGroup.watchInterval;
+      } else {
+        watchInterval = Objects.requireNonNull(watchGroup.watchInterval);
         if (watchInterval < minWatchInterval) {
           console.warn("Watch interval must be at least %d seconds, using %d".formatted(
             minWatchInterval, minWatchInterval));
@@ -206,7 +206,7 @@ public class StartCommand implements Callable<Integer> {
   static class WatchGroup {
     @Option(names = "--watch", arity = "0..1", fallbackValue = "30",
       description = "Enable watch mode with interval in seconds (default: 30).")
-    Integer watchInterval;
+    @Nullable Integer watchInterval;
 
     @Option(names = "--no-watch", description = "Disable watch mode.")
     boolean noWatch;

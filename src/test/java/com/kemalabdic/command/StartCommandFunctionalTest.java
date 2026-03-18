@@ -96,6 +96,18 @@ class StartCommandFunctionalTest {
   }
 
   @Test
+  void callReturnsSoftwareWhenConfigFileIsNull() {
+    // given
+    command.configFile = null;
+
+    // when
+    final int exitCode = command.call();
+
+    // then
+    assertEquals(ExitCode.SOFTWARE, exitCode);
+  }
+
+  @Test
   void callReturnsSoftwareWhenConfigFileNotFound() {
     // given
     command.configFile = tempDir.resolve("nonexistent.ini");
@@ -138,8 +150,7 @@ class StartCommandFunctionalTest {
       watchMode, errorReporter, new ConsoleOutput(new PrintStream(capturedOut), false), ec2pfConfig);
     brokenCmd.dryRun = false;
 
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    brokenCmd.configFile = configFile;
+    brokenCmd.configFile = createConfigFile("svc-a = 7001, false");
 
     // when
     final int exitCode = brokenCmd.call();
@@ -151,8 +162,7 @@ class StartCommandFunctionalTest {
   @Test
   void callReturnsSoftwareWhenAllServicesFail() throws IOException {
     // given
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    command.configFile = configFile;
+    command.configFile = createConfigFile("svc-a = 7001, false");
 
     when(sessionManager.prefetchInstanceIds(anyList(), any())).thenReturn(Map.of());
     when(sessionManager.startSession(any(), any(), any(), any(), anyBoolean()))
@@ -168,8 +178,7 @@ class StartCommandFunctionalTest {
   @Test
   void callReturnsOkWhenServicesConnect() throws IOException {
     // given
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    command.configFile = configFile;
+    command.configFile = createConfigFile("svc-a = 7001, false");
 
     when(sessionManager.prefetchInstanceIds(anyList(), any())).thenReturn(Map.of("svc-a", "i-abc"));
     when(sessionManager.startSession(any(), any(), any(), any(), anyBoolean()))
@@ -209,8 +218,7 @@ class StartCommandFunctionalTest {
   void dryRunModeDoesNotStartWatchMode() throws IOException {
     // given
     command.dryRun = true;
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    command.configFile = configFile;
+    command.configFile = createConfigFile("svc-a = 7001, false");
 
     when(sessionManager.prefetchInstanceIds(anyList(), any())).thenReturn(Map.of());
     when(sessionManager.startSession(any(), any(), any(), any(), anyBoolean()))
@@ -227,8 +235,7 @@ class StartCommandFunctionalTest {
   @Test
   void noWatchFlagDisablesWatchMode() throws IOException {
     // given
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    command.configFile = configFile;
+    command.configFile = createConfigFile("svc-a = 7001, false");
 
     final StartCommand.WatchGroup wg = new StartCommand.WatchGroup();
     wg.noWatch = true;
@@ -380,8 +387,7 @@ class StartCommandFunctionalTest {
   @Test
   void cleanupPreviousHandlesNoPreviousSessionsGracefully() throws IOException {
     // given - no pre-existing PID file; cleanup is a no-op and start succeeds
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    command.configFile = configFile;
+    command.configFile = createConfigFile("svc-a = 7001, false");
 
     when(sessionManager.prefetchInstanceIds(anyList(), any())).thenReturn(Map.of());
     when(sessionManager.startSession(any(), any(), any(), any(), anyBoolean()))
@@ -397,8 +403,7 @@ class StartCommandFunctionalTest {
   @Test
   void watchModeDoesNotStartWhenNoSessionsSucceeded() throws IOException {
     // given
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    command.configFile = configFile;
+    command.configFile = createConfigFile("svc-a = 7001, false");
 
     when(sessionManager.prefetchInstanceIds(anyList(), any())).thenReturn(Map.of());
     when(sessionManager.startSession(any(), any(), any(), any(), anyBoolean()))
@@ -490,8 +495,7 @@ class StartCommandFunctionalTest {
   @Test
   void cleanupPreviousSkipsWhenNoPreviousSessions() throws IOException {
     // given - no pre-existing PID file means readEntries returns empty list
-    final Path configFile = createConfigFile("svc-a = 7001, false");
-    command.configFile = configFile;
+    command.configFile = createConfigFile("svc-a = 7001, false");
 
     when(sessionManager.prefetchInstanceIds(anyList(), any())).thenReturn(Map.of());
     when(sessionManager.startSession(any(), any(), any(), any(), anyBoolean()))

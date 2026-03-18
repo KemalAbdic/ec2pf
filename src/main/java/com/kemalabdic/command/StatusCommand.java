@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -29,7 +30,7 @@ public class StatusCommand implements Callable<Integer> {
   private final PidFileManager pidFileManager;
   private final ProcessOperations processService;
   private final ConsoleOutput console;
-  @ArgGroup(exclusive = true, multiplicity = "1")
+  @ArgGroup(multiplicity = "1")
   @Nullable StatusTarget target;
 
   @Inject
@@ -43,11 +44,15 @@ public class StatusCommand implements Callable<Integer> {
 
   @Override
   public Integer call() {
+    if (Objects.isNull(target)) {
+      console.error("No target specified. Use -c/--config or --all.");
+      return ExitCode.SOFTWARE;
+    }
     final boolean hasError;
     if (target.all) {
       hasError = showAll();
     } else {
-      hasError = showByConfig(target.configFile);
+      hasError = showByConfig(Objects.requireNonNull(target.configFile));
     }
     return hasError ? ExitCode.SOFTWARE : ExitCode.OK;
   }
@@ -139,7 +144,7 @@ public class StatusCommand implements Callable<Integer> {
 
   static class StatusTarget {
     @Option(names = {"-c", "--config"}, description = "Path to INI config file.")
-    Path configFile;
+    @Nullable Path configFile;
 
     @Option(names = "--all", description = "Show all active sessions.")
     boolean all;

@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ExitCode;
@@ -32,7 +33,7 @@ public class ValidateCommand implements Callable<Integer> {
 
   @Override
   public Integer call() {
-    if (!Files.exists(configFile)) {
+    if (Objects.isNull(configFile) || !Files.exists(configFile)) {
       console.error(Messages.ERR_CONFIG_NOT_FOUND.formatted(configFile));
       return ExitCode.SOFTWARE;
     }

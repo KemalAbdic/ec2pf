@@ -37,7 +37,6 @@ class StatusCommandTest {
 
   @TempDir
   Path tempDir;
-  private IniConfigParser configParser;
   private PidFileManager pidFileManager;
   private ProcessOperations processService;
   private StatusCommand command;
@@ -46,7 +45,7 @@ class StatusCommandTest {
 
   @BeforeEach
   void setUp() {
-    configParser = new IniConfigParser();
+    final IniConfigParser configParser = new IniConfigParser();
     pidFileManager = new PidFileManager(tempDir.toString());
     processService = mock(ProcessOperations.class);
     originalOut = System.out;
@@ -90,6 +89,19 @@ class StatusCommandTest {
     for (final SessionInfo entry : entries) {
       pidFileManager.appendEntry(pidFile, entry);
     }
+  }
+
+  @Test
+  void callReturnsSoftwareWhenTargetIsNull() {
+    // given
+    command.target = null;
+
+    // when
+    final int exitCode = command.call();
+
+    // then
+    assertEquals(ExitCode.SOFTWARE, exitCode);
+    assertTrue(output().contains("No target specified"), "Should show null target error, got: " + output());
   }
 
   @Test

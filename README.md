@@ -1,7 +1,7 @@
 # ec2pf
 
 [![Build](https://github.com/KemalAbdic/ec2pf/actions/workflows/build.yml/badge.svg)](https://github.com/KemalAbdic/ec2pf/actions/workflows/build.yml)
-[![Coverage](https://img.shields.io/badge/Coverage-94%25-brightgreen.svg)](build/reports/jacoco/test/html/index.html)
+[![codecov](https://codecov.io/gh/KemalAbdic/ec2pf/graph/badge.svg)](https://codecov.io/gh/KemalAbdic/ec2pf)
 [![Release](https://img.shields.io/github/v/release/KemalAbdic/ec2pf)](https://github.com/KemalAbdic/ec2pf/releases/latest)
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.org/projects/jdk/17/)
