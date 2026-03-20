@@ -51,12 +51,41 @@ jobs:
         id: changes
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          if git diff --name-only HEAD~1 | grep -qvE '\.md$'; then
+          BEFORE="$GIT_BEFORE"
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE=$(git rev-list --max-parents=0 HEAD)
+          fi
+          if git diff --name-only "$BEFORE".."$GIT_SHA" | grep -qvE '\.md$'; then
             echo "code_changed=true" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          GIT_BEFORE: ${{ github.event.before }}
+          GIT_SHA: ${{ github.sha }}
 
       - name: Tag release
+        id: tag
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.changes.outputs.code_changed == 'true'
-        run: ./gradlew release -Prelease.disableChecks
+        run: |
+          BEFORE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          ./gradlew release -Prelease.disableChecks
+          TAG=$(git describe --tags --abbrev=0)
+          if [ "$TAG" = "$BEFORE_TAG" ]; then
+            echo "::error::release plugin did not create a new tag (still at $TAG)"
+            exit 1
+          fi
+          echo "Tagged: $TAG"
+          echo "tag_name=$TAG" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build uber-jar
+        if: steps.tag.outputs.tag_name
+        run: ./gradlew quarkusBuild -Dquarkus.package.jar.type=uber-jar -x test
+
+      - name: Create GitHub release
+        if: steps.tag.outputs.tag_name
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          generate_release_notes: true
+          files: build/ec2pf-*-runner.jar
