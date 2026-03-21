@@ -60,7 +60,7 @@ On macOS/Linux, make it executable after downloading:
 
 ```bash
 chmod +x ec2pf-*
-./ec2pf-<version>-linux-amd64 start -c config.ini
+./ec2pf-<version>-<platform>-<arch> start -c config.ini
 ```
 
 ### Uber-JAR (requires Java 17+)

@@ -38,6 +38,10 @@ jobs:
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::Tag must be in the format v<version>, e.g. v1.2.3"
+            exit 1
+          fi
           if [ "${{ matrix.platform }}" = "windows-amd64" ]; then
             BINARY_NAME="ec2pf-${VERSION}-${{ matrix.platform }}.exe"
           else
@@ -99,6 +103,8 @@ jobs:
   release:
     needs: [ build-native, build-uber-jar ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
