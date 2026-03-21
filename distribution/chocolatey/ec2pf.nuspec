@@ -3,14 +3,16 @@
   <metadata>
     <id>ec2pf</id>
     <version>{{VERSION}}</version>
-    <title>ec2pf</title>
+    <title>ec2pf - AWS EC2 Port Forwarding CLI</title>
     <authors>Kemal Abdic</authors>
     <owners>Kemal Abdic</owners>
     <projectUrl>https://github.com/KemalAbdic/ec2pf</projectUrl>
     <projectSourceUrl>https://github.com/KemalAbdic/ec2pf</projectSourceUrl>
+    <packageSourceUrl>https://github.com/KemalAbdic/ec2pf/tree/main/distribution/chocolatey</packageSourceUrl>
     <bugTrackerUrl>https://github.com/KemalAbdic/ec2pf/issues</bugTrackerUrl>
     <licenseUrl>https://github.com/KemalAbdic/ec2pf/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <releaseNotes>https://github.com/KemalAbdic/ec2pf/releases</releaseNotes>
     <summary>CLI tool for managing AWS SSM port-forwarding sessions to EC2 instances.</summary>
     <description>CLI tool for managing AWS SSM port-forwarding sessions to EC2 instances. Define your AWS settings and services in an INI config file, then start, stop, and monitor SSM sessions with automatic reconnection.</description>
     <tags>aws ssm ec2 port-forwarding cli</tags>
