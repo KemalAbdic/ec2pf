@@ -28,7 +28,7 @@ jobs:
 
       - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: 17
+          java-version: 21
           distribution: graalvm
 
       - uses: gradle/actions/setup-gradle@v4.4.1
