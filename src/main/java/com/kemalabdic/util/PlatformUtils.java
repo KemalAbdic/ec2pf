@@ -1,23 +1,26 @@
 package com.kemalabdic.util;
 
-import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 public final class PlatformUtils {
 
-  private static final boolean DEFAULT_WINDOWS =
-    System.getProperty("os.name", "").toLowerCase().contains("win");
-
-  private static volatile Boolean windowsOverride;
+  private static volatile @Nullable Boolean windowsOverride;
 
   private PlatformUtils() {
     // not instantiated
   }
 
   public static boolean isWindows() {
-    return Objects.requireNonNullElse(windowsOverride, DEFAULT_WINDOWS);
+    Boolean override = windowsOverride;
+    return override != null ? override : DetectedHolder.IS_WINDOWS;
   }
 
-  public static void setWindowsOverride(final Boolean value) {
+  public static void setWindowsOverride(final @Nullable Boolean value) {
     windowsOverride = value;
+  }
+
+  private static final class DetectedHolder {
+    static final boolean IS_WINDOWS =
+      System.getProperty("os.name", "").toLowerCase().contains("win");
   }
 }

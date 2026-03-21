@@ -36,6 +36,15 @@ public class PortForwardCommand {
     @Override
     public String[] getVersion() {
       final String version = loadVersion();
+      final boolean isNative = System.getProperty("org.graalvm.nativeimage.imagecode") != null;
+      if (isNative) {
+        return new String[] {
+          "ec2pf %s (native / %s %s)".formatted(
+            version,
+            System.getProperty("os.name"),
+            System.getProperty("os.arch"))
+        };
+      }
       return new String[] {
         "ec2pf %s (Java %s / %s %s)".formatted(
           version,

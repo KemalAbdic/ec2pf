@@ -1,0 +1,21 @@
+{
+    "version": "{{VERSION}}",
+    "description": "CLI tool for managing AWS SSM port-forwarding sessions to EC2 instances",
+    "homepage": "https://github.com/KemalAbdic/ec2pf",
+    "license": "GPL-3.0-only",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/KemalAbdic/ec2pf/releases/download/v{{VERSION}}/ec2pf-{{VERSION}}-windows-amd64.exe",
+            "hash": "{{SHA256_WINDOWS_AMD64}}"
+        }
+    },
+    "bin": [["ec2pf-{{VERSION}}-windows-amd64.exe", "ec2pf"]],
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/KemalAbdic/ec2pf/releases/download/v$version/ec2pf-$version-windows-amd64.exe"
+            }
+        }
+    }
+}

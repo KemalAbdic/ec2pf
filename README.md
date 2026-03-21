@@ -6,7 +6,7 @@
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://openjdk.org/projects/jdk/17/)
 [![Quarkus](https://img.shields.io/badge/Quarkus-3.32-4695EB.svg?logo=quarkus)](https://quarkus.io/)
-[![Gradle](https://img.shields.io/badge/Gradle-9.3-02303A.svg?logo=gradle)](https://gradle.org/)
+[![Gradle](https://img.shields.io/badge/Gradle-9.4-02303A.svg?logo=gradle)](https://gradle.org/)
 [![AWS](https://img.shields.io/badge/AWS-SSM-FF9900.svg?logo=amazonwebservices)](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html)
 [![JSpecify](https://img.shields.io/badge/JSpecify-1.0-6A9955.svg)](https://jspecify.dev/)
 
@@ -17,14 +17,53 @@ config file, then start, stop, and monitor `aws ssm start-session` processes wit
 
 ## Prerequisites
 
-- Java 17+
 - [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
 - AWS credentials configured (`aws configure` or environment variables)
+- Java 17+ (only required for the uber-jar)
 
 ## Installation
 
-### Download (recommended)
+### Homebrew (macOS / Linux)
+
+```bash
+brew tap KemalAbdic/tap
+brew install ec2pf
+```
+
+### Chocolatey (Windows)
+
+```powershell
+choco install ec2pf
+```
+
+### Scoop (Windows)
+
+```powershell
+scoop bucket add kemalabdic https://github.com/KemalAbdic/scoop-bucket
+scoop install ec2pf
+```
+
+### Native binary (manual download)
+
+Download a pre-built native binary from the [latest release](https://github.com/KemalAbdic/ec2pf/releases/latest):
+
+| Platform       | File                                |
+|----------------|-------------------------------------|
+| Linux x86_64   | `ec2pf-<version>-linux-amd64`       |
+| Linux ARM64    | `ec2pf-<version>-linux-arm64`       |
+| macOS x86_64   | `ec2pf-<version>-darwin-amd64`      |
+| macOS ARM64    | `ec2pf-<version>-darwin-arm64`      |
+| Windows x86_64 | `ec2pf-<version>-windows-amd64.exe` |
+
+On macOS/Linux, make it executable after downloading:
+
+```bash
+chmod +x ec2pf-*
+./ec2pf-<version>-linux-amd64 start -c config.ini
+```
+
+### Uber-JAR (requires Java 17+)
 
 Grab the uber-jar from the [latest release](https://github.com/KemalAbdic/ec2pf/releases/latest) - it's a single
 self-contained JAR with all dependencies bundled:
@@ -86,7 +125,6 @@ ec2pf start -c config.ini --no-watch
 ec2pf stop -c config.ini
 ec2pf stop --all
 ec2pf stop --all --dry-run
-
 ```
 
 | Option         | Description                              |

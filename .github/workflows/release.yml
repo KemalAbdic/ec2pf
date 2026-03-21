@@ -1,0 +1,236 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-native:
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            platform: linux-amd64
+          - runner: ubuntu-24.04-arm
+            platform: linux-arm64
+          - runner: macos-13
+            platform: darwin-amd64
+          - runner: macos-latest
+            platform: darwin-arm64
+          - runner: windows-latest
+            platform: windows-amd64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: 17
+          distribution: graalvm
+
+      - uses: gradle/actions/setup-gradle@v4.4.1
+
+      - name: Compute version and binary name
+        id: meta
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [ "${{ matrix.platform }}" = "windows-amd64" ]; then
+            BINARY_NAME="ec2pf-${VERSION}-${{ matrix.platform }}.exe"
+          else
+            BINARY_NAME="ec2pf-${VERSION}-${{ matrix.platform }}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "binary_name=${BINARY_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Build native executable
+        run: ./gradlew quarkusBuild -Dquarkus.native.enabled=true
+        shell: bash
+
+      - name: Rename binary
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" = "windows-amd64" ]; then
+            mv build/*-runner.exe "build/${{ steps.meta.outputs.binary_name }}"
+          else
+            mv build/*-runner "build/${{ steps.meta.outputs.binary_name }}"
+          fi
+
+      - name: Smoke test
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" = "windows-amd64" ]; then
+            ./build/${{ steps.meta.outputs.binary_name }} --version
+          else
+            chmod +x ./build/${{ steps.meta.outputs.binary_name }}
+            ./build/${{ steps.meta.outputs.binary_name }} --version
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: native-${{ matrix.platform }}
+          path: build/${{ steps.meta.outputs.binary_name }}
+
+  build-uber-jar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-java@v4.7.1
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4.4.1
+
+      - name: Build uber-jar
+        run: ./gradlew quarkusBuild -Dquarkus.package.jar.type=uber-jar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: uber-jar
+          path: build/ec2pf-*-runner.jar
+
+  release:
+    needs: [ build-native, build-uber-jar ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum ec2pf-* > checksums-sha256.txt
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/*
+
+  publish-homebrew:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Download checksums
+        run: gh release download "$GITHUB_REF_NAME" --pattern "checksums-sha256.txt"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: KemalAbdic/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
+
+      - name: Update Homebrew formula
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          SHA256_LINUX_AMD64=$(grep "linux-amd64" checksums-sha256.txt | awk '{print $1}')
+          SHA256_LINUX_ARM64=$(grep "linux-arm64" checksums-sha256.txt | awk '{print $1}')
+          SHA256_DARWIN_AMD64=$(grep "darwin-amd64" checksums-sha256.txt | awk '{print $1}')
+          SHA256_DARWIN_ARM64=$(grep "darwin-arm64" checksums-sha256.txt | awk '{print $1}')
+
+          mkdir -p tap/Formula
+
+          sed -e "s/{{VERSION}}/${VERSION}/g" \
+              -e "s/{{SHA256_LINUX_AMD64}}/${SHA256_LINUX_AMD64}/g" \
+              -e "s/{{SHA256_LINUX_ARM64}}/${SHA256_LINUX_ARM64}/g" \
+              -e "s/{{SHA256_DARWIN_AMD64}}/${SHA256_DARWIN_AMD64}/g" \
+              -e "s/{{SHA256_DARWIN_ARM64}}/${SHA256_DARWIN_ARM64}/g" \
+              distribution/homebrew/ec2pf.rb.template > tap/Formula/ec2pf.rb
+
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/ec2pf.rb
+          if ! git diff --staged --quiet; then
+            git commit -m "ec2pf ${VERSION}"
+            git push
+          fi
+
+  publish-chocolatey:
+    needs: release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Download checksums
+        shell: bash
+        run: |
+          gh release download "$GITHUB_REF_NAME" --pattern "checksums-sha256.txt"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Chocolatey package
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          CHECKSUM=$(grep "windows-amd64" checksums-sha256.txt | awk '{print $1}')
+
+          sed -e "s/{{VERSION}}/${VERSION}/g" \
+              distribution/chocolatey/ec2pf.nuspec > distribution/chocolatey/ec2pf.nuspec.tmp
+          mv distribution/chocolatey/ec2pf.nuspec.tmp distribution/chocolatey/ec2pf.nuspec
+
+          sed -e "s/{{VERSION}}/${VERSION}/g" \
+              -e "s/{{CHECKSUM}}/${CHECKSUM}/g" \
+              distribution/chocolatey/tools/chocolateyInstall.ps1 > distribution/chocolatey/tools/chocolateyInstall.ps1.tmp
+          mv distribution/chocolatey/tools/chocolateyInstall.ps1.tmp distribution/chocolatey/tools/chocolateyInstall.ps1
+
+          cd distribution/chocolatey
+          choco pack
+          choco push ec2pf.${VERSION}.nupkg --source https://push.chocolatey.org/ --api-key "$CHOCO_API_KEY"
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
+
+  publish-scoop:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Download checksums
+        run: gh release download "$GITHUB_REF_NAME" --pattern "checksums-sha256.txt"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout Scoop bucket
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: KemalAbdic/scoop-bucket
+          token: ${{ secrets.SCOOP_BUCKET_TOKEN }}
+          path: bucket-repo
+
+      - name: Update Scoop manifest
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          SHA256_WINDOWS_AMD64=$(grep "windows-amd64" checksums-sha256.txt | awk '{print $1}')
+
+          mkdir -p bucket-repo/bucket
+
+          sed -e "s/{{VERSION}}/${VERSION}/g" \
+              -e "s/{{SHA256_WINDOWS_AMD64}}/${SHA256_WINDOWS_AMD64}/g" \
+              distribution/scoop/ec2pf.json.template > bucket-repo/bucket/ec2pf.json
+
+          cd bucket-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bucket/ec2pf.json
+          if ! git diff --staged --quiet; then
+            git commit -m "ec2pf ${VERSION}"
+            git push
+          fi
