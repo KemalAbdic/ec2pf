@@ -38,13 +38,13 @@ scmVersion {
   snapshotCreator { _, _ -> "" }
 
   versionIncrementer { context ->
-    val prev: Version? = context.currentVersion
+    val prev: Version = context.currentVersion ?: Version.of(0, 0, 0)
     val tagName: String = "v${prev}"
-    val log: Process? = ProcessBuilder("git", "log", "--pretty=format:%s%n%b", "$tagName..HEAD")
+    val log: Process = ProcessBuilder("git", "log", "--pretty=format:%s%n%b", "$tagName..HEAD")
       .directory(rootDir)
       .redirectErrorStream(true)
       .start()
-    val commits: String = log!!.inputStream.bufferedReader().readText().trim()
+    val commits: String = log.inputStream.bufferedReader().readText().trim()
     log.waitFor()
 
     val isBreaking: Boolean = commits.lines().any { line ->
@@ -53,7 +53,7 @@ scmVersion {
     val hasFeat: Boolean = commits.lines().any { it.matches(Regex("^feat(\\(.*\\))?[!]?:.*")) }
 
     @Suppress("DEPRECATION")
-    val major: Long = prev!!.majorVersion.toLong()
+    val major: Long = prev.majorVersion.toLong()
 
     @Suppress("DEPRECATION")
     val minor: Long = prev.minorVersion.toLong()
