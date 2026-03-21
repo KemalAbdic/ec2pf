@@ -1,3 +1,6 @@
+import com.github.zafarkhaja.semver.Version
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
   java
   alias(libs.plugins.quarkus)
@@ -24,6 +27,8 @@ dependencies {
 
 }
 
+val rootDir: File = project.rootDir
+
 scmVersion {
   tag {
     prefix.set("v")
@@ -33,33 +38,33 @@ scmVersion {
   snapshotCreator { _, _ -> "" }
 
   versionIncrementer { context ->
-    val prev = context.currentVersion
-    val tagName = "v${prev}"
-    val log = ProcessBuilder("git", "log", "--pretty=format:%s%n%b", "$tagName..HEAD")
-      .directory(project.rootDir)
+    val prev: Version = context.currentVersion ?: Version.of(0, 0, 0)
+    val tagName: String = "v${prev}"
+    val log: Process = ProcessBuilder("git", "log", "--pretty=format:%s%n%b", "$tagName..HEAD")
+      .directory(rootDir)
       .redirectErrorStream(true)
       .start()
-    val commits = log.inputStream.bufferedReader().readText().trim()
+    val commits: String = log.inputStream.bufferedReader().readText().trim()
     log.waitFor()
 
-    val isBreaking = commits.lines().any { line ->
+    val isBreaking: Boolean = commits.lines().any { line ->
       line.startsWith("BREAKING CHANGE") || line.contains("!:")
     }
-    val hasFeat = commits.lines().any { it.matches(Regex("^feat(\\(.*\\))?[!]?:.*")) }
+    val hasFeat: Boolean = commits.lines().any { it.matches(Regex("^feat(\\(.*\\))?[!]?:.*")) }
 
     @Suppress("DEPRECATION")
-    val major = prev.majorVersion.toLong()
+    val major: Long = prev.majorVersion.toLong()
 
     @Suppress("DEPRECATION")
-    val minor = prev.minorVersion.toLong()
+    val minor: Long = prev.minorVersion.toLong()
 
     @Suppress("DEPRECATION")
-    val patch = prev.patchVersion.toLong()
+    val patch: Long = prev.patchVersion.toLong()
 
     when {
-      isBreaking -> com.github.zafarkhaja.semver.Version.of(major + 1, 0, 0)
-      hasFeat -> com.github.zafarkhaja.semver.Version.of(major, minor + 1, 0)
-      else -> com.github.zafarkhaja.semver.Version.of(major, minor, patch + 1)
+      isBreaking -> Version.of(major + 1, 0, 0)
+      hasFeat -> Version.of(major, minor + 1, 0)
+      else -> Version.of(major, minor, patch + 1)
     }
   }
 }
@@ -83,13 +88,14 @@ tasks.named("compileJava") {
 }
 
 tasks.processResources {
+  val appName: String = project.name
+  val appVersion: String = project.version.toString()
+  inputs.property("appName", appName)
+  inputs.property("appVersion", appVersion)
   filesMatching(listOf("banner.txt", "version.properties")) {
     filter(
-      org.apache.tools.ant.filters.ReplaceTokens::class,
-      "tokens" to mapOf(
-        "app.name" to project.name,
-        "app.version" to project.version.toString()
-      )
+      mapOf("tokens" to mapOf("app.name" to appName, "app.version" to appVersion)),
+      ReplaceTokens::class.java
     )
   }
 }

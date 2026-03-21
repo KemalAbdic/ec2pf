@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: actions/setup-java@v4.7.1
         with:
@@ -78,14 +79,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build uber-jar
+      - name: Push tag
         if: steps.tag.outputs.tag_name
-        run: ./gradlew quarkusBuild -Dquarkus.package.jar.type=uber-jar -x test
-
-      - name: Create GitHub release
-        if: steps.tag.outputs.tag_name
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag.outputs.tag_name }}
-          generate_release_notes: true
-          files: build/ec2pf-*-runner.jar
+        run: git push origin "$TAG_NAME"
+        env:
+          TAG_NAME: ${{ steps.tag.outputs.tag_name }}

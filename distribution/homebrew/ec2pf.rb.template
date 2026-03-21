@@ -1,0 +1,39 @@
+class Ec2pf < Formula
+  desc "CLI tool for managing AWS SSM port-forwarding sessions to EC2 instances"
+  homepage "https://github.com/KemalAbdic/ec2pf"
+  version "{{VERSION}}"
+  license "GPL-3.0-only"
+
+  on_macos do
+    on_arm do
+      url "https://github.com/KemalAbdic/ec2pf/releases/download/v{{VERSION}}/ec2pf-{{VERSION}}-darwin-arm64"
+      sha256 "{{SHA256_DARWIN_ARM64}}"
+    end
+    on_intel do
+      url "https://github.com/KemalAbdic/ec2pf/releases/download/v{{VERSION}}/ec2pf-{{VERSION}}-darwin-amd64"
+      sha256 "{{SHA256_DARWIN_AMD64}}"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "https://github.com/KemalAbdic/ec2pf/releases/download/v{{VERSION}}/ec2pf-{{VERSION}}-linux-arm64"
+      sha256 "{{SHA256_LINUX_ARM64}}"
+    end
+    on_intel do
+      url "https://github.com/KemalAbdic/ec2pf/releases/download/v{{VERSION}}/ec2pf-{{VERSION}}-linux-amd64"
+      sha256 "{{SHA256_LINUX_AMD64}}"
+    end
+  end
+
+  def install
+    binary = Dir.glob("ec2pf-*").first
+    odie "ec2pf binary not found in download" if binary.nil?
+    chmod 0755, binary
+    bin.install binary => "ec2pf"
+  end
+
+  test do
+    assert_match "ec2pf", shell_output("#{bin}/ec2pf --version")
+  end
+end
