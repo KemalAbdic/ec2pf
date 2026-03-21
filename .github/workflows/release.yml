@@ -51,7 +51,7 @@ jobs:
           echo "binary_name=${BINARY_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Build native executable
-        run: ./gradlew quarkusBuild -Dquarkus.native.enabled=true
+        run: ./gradlew quarkusBuild -Dquarkus.native.enabled=true -Dquarkus.package.jar.enabled=false
         shell: bash
 
       - name: Rename binary
